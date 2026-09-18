@@ -1,0 +1,17 @@
+[
+  {
+    "player": "P1",
+    "score": 2980,
+    "maxLevel": 2,
+    "enemiesKilled": 4,
+    "duration": 231
+  },
+  {
+    "player": "  Hola",
+    "score": 0,
+    "maxLevel": 1,
+    "enemiesKilled": 0,
+    "duration": 120,
+    "date": "17/9/2026"
+  }
+]
