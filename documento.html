@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Documento Técnico - Blast Maze</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 20mm;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #1e293b;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f8fafc;
+        }
+        .page {
+            background: #ffffff;
+            max-width: 210mm;
+            min-height: 297mm;
+            margin: 20px auto;
+            padding: 25mm;
+            box-sizing: border-box;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            page-break-after: always;
+        }
+        @media print {
+            body { background: none; }
+            .page { margin: 0; box-shadow: none; padding: 0; min-height: auto; page-break-after: always; }
+            .no-print { display: none; }
+        }
+        .cover {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            min-height: 240mm;
+        }
+        h1 { color: #0f172a; font-size: 26pt; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        h2 { color: #2563eb; font-size: 16pt; margin-top: 25px; border-bottom: 2px solid #e2e8f0; padding-bottom: 4px; }
+        p, li { font-size: 10.5pt; text-align: justify; }
+        ul, ol { padding-left: 20px; }
+        .meta-box {
+            background: #f1f5f9;
+            border-left: 4px solid #2563eb;
+            padding: 15px 20px;
+            margin: 25px 0;
+            text-align: left;
+            width: 80%;
+            border-radius: 4px;
+        }
+        code { background: #e2e8f0; padding: 2px 5px; border-radius: 3px; font-family: monospace; font-size: 9.5pt; }
+        pre { background: #0f172a; color: #f8fafc; padding: 12px; border-radius: 6px; font-size: 9pt; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 10pt; }
+        th, td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left; }
+        th { background: #f1f5f9; color: #0f172a; font-weight: 600; }
+        .btn-print {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #2563eb;
+            color: #ffffff;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(37,99,235,0.3);
+        }
+        .btn-print:hover { background: #1d4ed8; }
+    </style>
+</head>
+<body>
+
+<button class="btn-print no-print" onclick="window.print()">📥 Exportar a PDF</button>
+
+<!-- PÁGINA 1: PORTADA -->
+<div class="page cover">
+    <p style="font-size: 14pt; font-weight: bold; color: #64748b; margin: 0;">PROYECTO INTEGRADOR</p>
+    <h1>BLAST MAZE: ARENA BOMBER</h1>
+    <p style="font-size: 12pt; color: #475569; margin-top: 5px;">Desarrollo de Videojuego Arcade Web con JavaScript Vanilla y Node.js</p>
+    
+    <div class="meta-box" style="margin-top: 60px;">
+        <p><strong>Proyecto:</strong> Proyecto 3 — Blast Maze: Arena Bomber</p>
+        <p><strong>Estudiante:</strong> Ricardo Juárez Garduño</p>
+        <p><strong>Modalidad:</strong> Desarrollo Individual</p>
+        <p><strong>Repositorio GitHub:</strong> <a href="https://github.com/0xBMO/blast-maze-arcade">github.com/0xBMO/blast-maze-arcade</a></p>
+        <p><strong>Tecnologías:</strong> HTML5 Canvas, CSS3, JavaScript ES6, Node.js, JSON, Fetch API</p>
+    </div>
+
+    <p style="margin-top: 80px; font-size: 10pt; color: #94a3b8;">Septiembre 2026</p>
+</div>
+
+<!-- PÁGINA 2: OBJETIVO Y ARQUITECTURA -->
+<div class="page">
+    <h2>1. Objetivo del Proyecto</h2>
+    <p>Diseñar e implementar un videojuego arcade web basado en laberintos y cuadrículas (grid-based), integrando generación procedural de niveles, múltiples algoritmos de inteligencia artificial (Breadth-First Search, A* y cálculo predictivo), mecánicas de explosión en cruz con reacciones en cadena, y un backend persistente en Node.js desarrollado sin motores ni librerías externas.</p>
+
+    <h2>2. Descripción General del Funcionamiento</h2>
+    <p>El jugador controla un personaje en un laberinto cerrado generado dinámicamente. Para avanzar debe colocar bombas estratégicas que destruyen bloques y abren pasillos transitables. Al destruir bloques, existe probabilidad de obtener mejoras (Power-Ups) y revelar la salida secreta. Para superar cada nivel, el jugador debe erradicar a todos los agentes enemigos antes de que expire el temporizador y cruzar por la casilla de salida.</p>
+
+    <h2>3. Tecnologías y Restricciones Técnicas</h2>
+    <ul>
+        <li><strong>Frontend:</strong> HTML5 (Canvas API), CSS3 puro y JavaScript moderno modular (ES6 Modules). Sin librerías externas.</li>
+        <li><strong>Backend:</strong> Node.js con módulos nativos (<code>http</code>, <code>fs</code>, <code>path</code>) para servir archivos estáticos y exponer una API REST.</li>
+        <li><strong>Almacenamiento:</strong> Persistencia asíncrona en archivo plano <code>scores.json</code> y comunicación bidireccional mediante <code>Fetch API</code>.</li>
+    </ul>
+
+    <h2>4. Arquitectura General del Sistema</h2>
+    <pre>
+BLAST-MAZE/
+├── index.html          # Punto de entrada y contenedor Canvas
+├── css/styles.css      # Estilos visuales de la interfaz
+├── js/
+│   ├── main.js         # Orquestador del ciclo principal (Game Loop)
+│   ├── core/           # InputHandler, ParticleSystem, FXManager
+│   ├── world/          # MapGenerator (matriz 2D y validación BFS)
+│   ├── ai/             # Pathfinding (algoritmos BFS y A*)
+│   ├── entities/       # Player, Bomb, Explosion, Enemy, PowerUp
+│   └── services/       # ApiClient (comunicación HTTP con Fetch)
+└── server/
+    ├── server.js       # Servidor HTTP y API REST nativa
+    └── data/scores.json# Persistencia del ranking Top 10
+    </pre>
+</div>
+
+<!-- PÁGINA 3: ALGORITMOS Y MECÁNICAS -->
+<div class="page">
+    <h2>5. Generación Procedural y Solubilidad</h2>
+    <p>El escenario se construye como una matriz numérica bidimensional de dimensiones impares (17x13). Se preservan los muros exteriores y los pilares intercalados fijos característicos del género:</p>
+    <ul>
+        <li><code>0</code>: Suelo transitable | <code>1</code>: Muro sólido indestructible | <code>2</code>: Bloque rompible</li>
+    </ul>
+    <p><strong>Garantía de Solubilidad:</strong> Ningún mapa se muestra al usuario sin antes ejecutar una prueba de ruta con <strong>BFS (Breadth-First Search)</strong> entre la posición inicial del jugador (1,1) y la casilla donde se ocultó la salida. Si no existe camino potencial despejable, el generador regenera la matriz de inmediato.</p>
+
+    <h2>6. Inteligencia Artificial de los Enemigos</h2>
+    <table>
+        <tr>
+            <th>Enemigo</th>
+            <th>Algoritmo</th>
+            <th>Comportamiento</th>
+        </tr>
+        <tr>
+            <td><strong>Aleatorio</strong></td>
+            <td>Random Walk</td>
+            <td>Elige direcciones cardinales libres al azar en bifurcaciones.</td>
+        </tr>
+        <tr>
+            <td><strong>BFS</strong></td>
+            <td>Breadth-First Search</td>
+            <td>Explora por capas para asegurar el camino geométricamente más corto hacia el jugador.</td>
+        </tr>
+        <tr>
+            <td><strong>A* Hunter</strong></td>
+            <td>A* Manhattan</td>
+            <td>Búsqueda informada mediante <code>h = |x1 - x2| + |y1 - y2|</code> para persecución directa.</td>
+        </tr>
+        <tr>
+            <td><strong>Predictivo</strong></td>
+            <td>A* Proyectivo</td>
+            <td>Anticipa 2 celdas hacia donde se dirige el jugador antes de trazar ruta.</td>
+        </tr>
+    </table>
+
+    <h2>7. Mecánica de Bombas y Reacciones en Cadena</h2>
+    <p>Al colocarse una bomba, se inicializa un temporizador de 2.8 segundos. Al detonar, propaga rayos en cruz en 4 direcciones hasta su radio actual. Si el rayo impacta un bloque rompible, lo destruye y detiene su avance en ese vector. Si alcanza otra bomba activa, fuerza su detonación inmediata desatando una reacción en cadena.</p>
+</div>
+
+<!-- PÁGINA 4: BACKEND, PRUEBAS Y CONCLUSIONES -->
+<div class="page">
+    <h2>8. Backend en Node.js y Persistencia</h2>
+    <ul>
+        <li><code>GET /api/scores</code>: Lee de forma síncrona el archivo <code>scores.json</code> y retorna el listado en JSON.</li>
+        <li><code>POST /api/scores</code>: Recibe el registro de la partida (nombre, puntuación, nivel, bajas y duración), ordenando descendentemente el Top 10.</li>
+    </ul>
+
+    <h2>9. Modo Debug (F2) y Pruebas</h2>
+    <ul>
+        <li>Líneas vectoriales de color sobre el Canvas indicando la ruta calculada por cada enemigo.</li>
+        <li>Hitboxes activas de jugador y entidades.</li>
+        <li>Métricas instantáneas: escudos, velocidad, radio de explosión y coordenadas en tiempo real.</li>
+    </ul>
+
+    <h2>10. Problemas Encontrados y Soluciones</h2>
+    <ol>
+        <li><strong>Colisión anticipada al romper bloques:</strong> Corregido recalculando el radio efectivo centrado de impacto en <code>hitsEntity</code>.</li>
+        <li><strong>Inmovilidad inicial de IAs en mapas cerrados:</strong> Resuelto implementando una rutina de patrullaje transitorio si el camino directo está obstruido por bloques rompibles.</li>
+    </ol>
+
+    <h2>11. Conclusiones</h2>
+    <p>El proyecto demuestra la viabilidad de desarrollar un motor arcade completo aprovechando Canvas 2D y JavaScript nativo, coordinando el ciclo de render mediante <code>requestAnimationFrame</code>, algoritmos de grafos y comunicación asíncrona con Node.js.</p>
+</div>
+
+</body>
+</html>

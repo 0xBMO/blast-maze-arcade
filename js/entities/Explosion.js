@@ -1,13 +1,26 @@
 import { TILE_TYPES } from '../world/MapGenerator.js';
 
 export class Explosion {
-    constructor(tileX, tileY, range, tileSize, grid, bombsList) {
+    constructor(tileX, tileY, range, tileSize, grid, bombsList, particleSystem) {
         this.tileSize = tileSize;
-        this.duration = 0.45;
+        this.duration = 0.5;
         this.cells = [];
-        this.destroyedBlocks = []; // Guarda las coordenadas de los bloques rotos
+        this.destroyedBlocks = [];
 
         this._calculateSpread(tileX, tileY, range, grid, bombsList);
+
+        if (particleSystem) {
+            for (const c of this.cells) {
+                particleSystem.emit(
+                    c.x * tileSize + tileSize / 2,
+                    c.y * tileSize + tileSize / 2,
+                    '#ef4444',
+                    4,
+                    60,
+                    0.35
+                );
+            }
+        }
     }
 
     _calculateSpread(startX, startY, range, grid, bombsList) {
@@ -26,21 +39,15 @@ export class Explosion {
                 const ty = startY + dir.dy * step;
 
                 if (ty < 0 || ty >= grid.length || tx < 0 || tx >= grid[0].length) break;
-
                 const tile = grid[ty][tx];
 
-                if (tile === TILE_TYPES.SOLID_WALL) {
-                    break;
-                }
+                if (tile === TILE_TYPES.SOLID_WALL) break;
 
                 this.cells.push({ x: tx, y: ty });
 
                 const hitBomb = bombsList.find(b => !b.isExploded && b.tileX === tx && b.tileY === ty);
-                if (hitBomb) {
-                    hitBomb.timer = 0;
-                }
+                if (hitBomb) hitBomb.timer = 0;
 
-                // Si impacta un bloque rompible, registrarlo y destruirlo
                 if (tile === TILE_TYPES.DESTRUCTIBLE) {
                     grid[ty][tx] = TILE_TYPES.FLOOR;
                     this.destroyedBlocks.push({ x: tx, y: ty });
@@ -54,24 +61,37 @@ export class Explosion {
         this.duration -= deltaTime;
     }
 
-    get isFinished() {
-        return this.duration <= 0;
-    }
+    get isFinished() { return this.duration <= 0; }
 
     draw(ctx) {
-        const alpha = Math.max(0, this.duration / 0.45);
-        ctx.fillStyle = `rgba(239, 68, 68, ${alpha * 0.85})`;
+        const progress = this.duration / 0.5;
+        const alpha = Math.max(0, progress);
+
+        ctx.save();
+        ctx.shadowColor = '#f97316';
+        ctx.shadowBlur = 15;
 
         for (const cell of this.cells) {
-            const px = cell.x * this.tileSize;
-            const py = cell.y * this.tileSize;
+            const cx = cell.x * this.tileSize + this.tileSize / 2;
+            const cy = cell.y * this.tileSize + this.tileSize / 2;
+            const size = (this.tileSize / 2) * (0.6 + (1 - progress) * 0.4);
 
-            ctx.fillRect(px + 4, py + 4, this.tileSize - 8, this.tileSize - 8);
+            ctx.fillStyle = `rgba(239, 68, 68, ${alpha * 0.85})`;
+            ctx.beginPath();
+            ctx.arc(cx, cy, size, 0, Math.PI * 2);
+            ctx.fill();
 
             ctx.fillStyle = `rgba(251, 191, 36, ${alpha})`;
-            ctx.fillRect(px + 12, py + 12, this.tileSize - 24, this.tileSize - 24);
-            ctx.fillStyle = `rgba(239, 68, 68, ${alpha * 0.85})`;
+            ctx.beginPath();
+            ctx.arc(cx, cy, size * 0.65, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.9})`;
+            ctx.beginPath();
+            ctx.arc(cx, cy, size * 0.3, 0, Math.PI * 2);
+            ctx.fill();
         }
+        ctx.restore();
     }
 
     hitsEntity(entity) {
@@ -86,9 +106,7 @@ export class Explosion {
             const closestY = Math.max(minY, Math.min(entity.y, maxY));
 
             const distSq = (entity.x - closestX) ** 2 + (entity.y - closestY) ** 2;
-            if (distSq < (innerRadius ** 2)) {
-                return true;
-            }
+            if (distSq < (innerRadius ** 2)) return true;
         }
         return false;
     }

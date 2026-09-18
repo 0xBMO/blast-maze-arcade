@@ -1,10 +1,26 @@
 [
   {
+    "player": "Player",
+    "score": 3160,
+    "maxLevel": 2,
+    "enemiesKilled": 4,
+    "duration": 163,
+    "date": "18/9/2026"
+  },
+  {
     "player": "P1",
     "score": 2980,
     "maxLevel": 2,
     "enemiesKilled": 4,
     "duration": 231
+  },
+  {
+    "player": "Ricji",
+    "score": 650,
+    "maxLevel": 1,
+    "enemiesKilled": 1,
+    "duration": 80,
+    "date": "17/9/2026"
   },
   {
     "player": "  Hola",

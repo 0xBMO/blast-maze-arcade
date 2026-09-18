@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Diagrama de Flujo - Blast Maze</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        button:hover { background: #1d4ed8; }
+        canvas {
+            background: #ffffff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <button id="btnDescargar">Descargar Imagen PNG</button>
+    <canvas id="canvasDiagrama" width="1050" height="1350"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvasDiagrama');
+        const ctx = canvas.getContext('2d');
+
+        function drawBox(text, x, y, w, h, bg, border, isDecision = false) {
+            ctx.save();
+            ctx.fillStyle = bg;
+            ctx.strokeStyle = border;
+            ctx.lineWidth = 2;
+
+            if (isDecision) {
+                ctx.beginPath();
+                ctx.moveTo(x + w / 2, y);
+                ctx.lineTo(x + w, y + h / 2);
+                ctx.lineTo(x + w / 2, y + h);
+                ctx.lineTo(x, y + h / 2);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+            } else {
+                ctx.beginPath();
+                ctx.roundRect(x, y, w, h, 8);
+                ctx.fill();
+                ctx.stroke();
+            }
+
+            ctx.fillStyle = "#1e293b";
+            ctx.font = isDecision ? "bold 13px sans-serif" : "bold 14px sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+
+            const lines = text.split('\n');
+            const lineH = 18;
+            const startY = y + (h / 2) - ((lines.length - 1) * lineH) / 2;
+            lines.forEach((l, i) => ctx.fillText(l, x + w / 2, startY + (i * lineH)));
+            ctx.restore();
+        }
+
+        function drawArrow(x1, y1, x2, y2, label = "") {
+            ctx.save();
+            ctx.strokeStyle = "#475569";
+            ctx.fillStyle = "#475569";
+            ctx.lineWidth = 2;
+
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+
+            const angle = Math.atan2(y2 - y1, x2 - x1);
+            ctx.beginPath();
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - 10 * Math.cos(angle - Math.PI / 6), y2 - 10 * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(x2 - 10 * Math.cos(angle + Math.PI / 6), y2 - 10 * Math.sin(angle + Math.PI / 6));
+            ctx.closePath();
+            ctx.fill();
+
+            if (label) {
+                ctx.fillStyle = "#dc2626";
+                ctx.font = "bold 12px sans-serif";
+                ctx.fillText(label, (x1 + x2) / 2 + 15, (y1 + y2) / 2 - 5);
+            }
+            ctx.restore();
+        }
+
+        // Fondo del diagrama
+        ctx.fillStyle = "#f8fafc";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Título del Diagrama
+        ctx.fillStyle = "#0f172a";
+        ctx.font = "bold 26px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("DIAGRAMA DE FLUJO GENERAL: BLAST MAZE (ARENA BOMBER)", canvas.width / 2, 45);
+
+        // Nodos
+        drawBox("INICIO\nCarga de HTML5, Canvas y Assets", 375, 80, 300, 50, "#e2e8f0", "#64748b");
+        drawArrow(525, 130, 525, 160);
+
+        drawBox("CONEXIÓN CON SERVIDOR\nInicializar API Node.js y verificar scores.json", 375, 160, 300, 50, "#e2e8f0", "#64748b");
+        drawArrow(525, 210, 525, 240);
+
+        drawBox("MENÚ PRINCIPAL\nOpciones: Iniciar Juego / Ver Ranking", 375, 240, 300, 50, "#fef3c7", "#d97706");
+        drawArrow(525, 290, 525, 320);
+
+        drawBox("GENERACIÓN PROCEDURAL DEL MAPA\nCrear matriz de tiles, muros fijos y bloques rompibles", 360, 320, 330, 50, "#dbeafe", "#2563eb");
+        drawArrow(525, 370, 525, 400);
+
+        drawBox("¿EL MAPA TIENE RUTA VÁLIDA?\n(Validación BFS hacia la salida)", 375, 400, 300, 80, "#fee2e2", "#ef4444", true);
+        
+        // Loopback si es inválido
+        drawArrow(375, 440, 260, 440, "No");
+        ctx.save();
+        ctx.strokeStyle = "#475569";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(260, 440);
+        ctx.lineTo(260, 345);
+        ctx.lineTo(360, 345);
+        ctx.stroke();
+        ctx.restore();
+
+        drawArrow(525, 480, 525, 520, "Sí");
+
+        // Caja de bucle principal
+        ctx.save();
+        ctx.strokeStyle = "#3b82f6";
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 6]);
+        ctx.strokeRect(160, 520, 730, 450);
+        ctx.fillStyle = "#1d4ed8";
+        ctx.font = "bold 14px sans-serif";
+        ctx.fillText("BUCLE PRINCIPAL DE JUEGO (GAME LOOP - 60 FPS)", 525, 540);
+        ctx.restore();
+
+        drawBox("LECTURA DE ENTRADAS (INPUT)\nTeclado: Movimiento (WASD), Bomba (Espacio), Debug (F2)", 325, 560, 400, 45, "#f1f5f9", "#94a3b8");
+        drawArrow(525, 605, 525, 630);
+
+        drawBox("ACTUALIZAR JUGADOR\nMovimiento por celdas, colisiones con muros y recogida de Power-Ups", 285, 630, 480, 45, "#f1f5f9", "#94a3b8");
+        drawArrow(525, 675, 525, 700);
+
+        drawBox("ACTUALIZAR BOMBAS Y EXPLOSIONES\nTemporizador de mecha, propagación en cruz y reacción en cadena", 285, 700, 480, 45, "#f1f5f9", "#94a3b8");
+        drawArrow(525, 745, 525, 770);
+
+        drawBox("ACTUALIZAR IA DE ENEMIGOS\n1. Aleatorio | 2. BFS | 3. A* | 4. Predictivo", 325, 770, 400, 45, "#f1f5f9", "#94a3b8");
+        drawArrow(525, 815, 525, 840);
+
+        drawBox("SISTEMA DE DETECCIÓN DE COLISIONES\nExplosión vs Bloques | Fuego vs Entidades | Enemigo vs Jugador", 305, 840, 440, 45, "#f1f5f9", "#94a3b8");
+        drawArrow(525, 885, 525, 910);
+
+        drawBox("RENDERIZADO EN CANVAS Y OVERLAY DEBUG\nDibujar Tiles, Sprites, Partículas, HUD y Hitboxes (si F2 está activo)", 285, 910, 480, 45, "#f1f5f9", "#94a3b8");
+
+        drawArrow(525, 970, 525, 1000);
+
+        drawBox("¿EL JUGADOR RECIBIÓ DAÑO\nO SE AGOTÓ EL TIEMPO?", 375, 1000, 300, 80, "#fee2e2", "#ef4444", true);
+
+        // Muerte / Vidas
+        drawArrow(675, 1040, 770, 1040, "Sí");
+        drawBox("¿TIENE VIDAS\nRESTANTES?", 770, 1000, 160, 80, "#fee2e2", "#ef4444", true);
+
+        drawArrow(850, 1080, 850, 1140, "No");
+        drawBox("GAME OVER\nEnviar puntuación a Node.js\nPOST /api/scores", 740, 1140, 220, 60, "#fee2e2", "#b91c1c");
+
+        drawArrow(850, 1000, 850, 650, "Sí");
+        drawBox("RESPAWN\nReiniciar en (1,1)\nRestar 1 Vida", 860, 810, 140, 45, "#fef3c7", "#d97706");
+
+        // Victoria de Nivel
+        drawArrow(375, 1040, 260, 1040, "No");
+        drawBox("¿ENEMIGOS ELIMINADOS\nY SALIDA ALCANZADA?", 110, 1000, 150, 80, "#dcfce7", "#16a34a", true);
+
+        drawArrow(185, 1080, 185, 1140, "Sí");
+        drawBox("SIGUIENTE NIVEL\nIncrementar velocidad de enemigos\ny regenerar laberinto", 85, 1140, 200, 60, "#dcfce7", "#15803d");
+
+        // Conectar volver al loop si sigue jugando
+        drawArrow(185, 1000, 185, 720, "No");
+
+        // Descarga de imagen
+        document.getElementById('btnDescargar').addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = 'diagrama_flujo_blast_maze.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+    </script>
+</body>
+</html>
